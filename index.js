@@ -20,8 +20,6 @@ const findSubnetsRange = () => {
       }
 
       return {
-        address, 
-        netmask,
         leftBound: bitMask <= 30
           ? ipUtils.number2ip((addressNumber & netmaskNumber) + 1) 
           : baseAddress,
@@ -31,5 +29,7 @@ const findSubnetsRange = () => {
       };
     });
 }
+
+console.log(findSubnetsRange())
 
 module.exports = {findSubnetsRange};

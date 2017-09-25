@@ -1,0 +1,30 @@
+{
+  "name": "ping-subnet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "net-ping": "^1.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ubcent/ping-subnet.git"
+  },
+  "keywords": [
+    "ping",
+    "icmp",
+    "subnet",
+    "ip",
+    "mask"
+  ],
+  "author": "Dmitry Bondarchuk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ubcent/ping-subnet/issues"
+  },
+  "homepage": "https://github.com/ubcent/ping-subnet#readme"
+}
