@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "net-ping": "^1.2.1"
+    "ping": "^0.2.2"
   },
   "devDependencies": {},
   "scripts": {
