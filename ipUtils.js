@@ -20,7 +20,7 @@ const ip2number = ip => {
         }
         return (segment || 0) << (8 * (3 - i));
       })
-      .reduce((acc, cur) => acc | cur, 0);
+      .reduce((acc, cur) => acc | cur, 0) >>> 0;
   }
 }
 
