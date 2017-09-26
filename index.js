@@ -11,7 +11,7 @@ class SubnetsPinger extends EventEmitter {
 
     const networkInterfaces = os.networkInterfaces();
     this.ranges = Object.keys(networkInterfaces)
-      .filter(key => !networkInterfaces[key][0].internal)
+      .filter(key => !networkInterfaces[key][0].internal && networkInterfaces[key].length >= 2)
       .map(key => {
         const { address, netmask } = networkInterfaces[key][1];
         const addressNumber = ipUtils.ip2number(address) >>> 0;
