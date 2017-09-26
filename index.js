@@ -49,7 +49,7 @@ class SubnetsPinger extends EventEmitter {
         });
       }
     };
-    for(let i = 0; i < 50; i++) {
+    for(let i = 0; i < os.cpus().length * 5; i++) {
       process.nextTick(() => {
         loop();
       });
