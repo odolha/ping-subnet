@@ -44,9 +44,13 @@ class SubnetsPinger extends EventEmitter {
         ping.promise.probe(ip).then(target => {
           if(target.alive) {
             this.emit('host:alive', target.host);
+          } else {
+            this.emit('host:dead', target.host);
           }
           loop();
         });
+      } else {
+        setTimeout(() => this.emit('ping:end'), 300);
       }
     };
     for(let i = 0; i < os.cpus().length * 5; i++) {
