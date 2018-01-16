@@ -6,47 +6,65 @@ const ping = require('ping');
 const ipUtils = require('./ipUtils');
 
 class SubnetsPinger extends EventEmitter {
-  constructor() {
+  constructor(_ranges) {
     super();
 
-    const networkInterfaces = os.networkInterfaces();
-    this.ranges = Object.keys(networkInterfaces)
-      .filter(key => 
-        !networkInterfaces[key][0].internal && networkInterfaces[key].length >= 2
-        && networkInterfaces[key].some(item => item.family == 'IPv4')
-      )
-      .map(key => {
-        const { address, netmask } = networkInterfaces[key]
-          .reduce((acc, item) => item.family == 'IPv4' ? item : acc, {});
-        const addressNumber = ipUtils.ip2number(address) >>> 0;
-        const netmaskNumber = ipUtils.ip2number(netmask) >>> 0;
-        const baseAddress = ipUtils.number2ip(addressNumber & netmaskNumber);
-        let bitMask;
-
-        for (let i = 32; i >= 0; i--) {
-          if (netmaskNumber == (0xffffffff << (32 - i)) >>> 0) {
-            bitMask = i;
-          }
+    if (_ranges) {
+      this.ranges = _ranges.filter(range => {
+        if(range.split('-').length == 2) {
+          const [leftBound, rightBound] = range.split('-');
+          return ipUtils.isIP(leftBound) && ipUtils.isIP(rightBound);
+        } else {
+          return ipUtils.isIP(range);
         }
-
-        return {
-          leftBound: bitMask <= 30
-            ? ipUtils.number2ip((addressNumber & netmaskNumber) + 1)
-            : baseAddress,
-          rightBound: bitMask <= 30
-            ? ipUtils.number2ip((addressNumber & netmaskNumber) + Math.pow(2, 32 - bitMask) - 2)
-            : ipUtils.number2ip((addressNumber & netmaskNumber) + Math.pow(2, 32 - bitMask) - 1)
-        };
+      }).map(range => {
+        if(range.split('-').length == 2) {
+          const [leftBound, rightBound] = range.split('-');
+          return {leftBound, rightBound};
+        } else {
+          return {leftBound: range, rightBound: range};
+        }
       });
+    } else {
+      const networkInterfaces = os.networkInterfaces();
+      this.ranges = Object.keys(networkInterfaces)
+        .filter(key =>
+          !networkInterfaces[key][0].internal && networkInterfaces[key].length >= 2
+          && networkInterfaces[key].some(item => item.family == 'IPv4')
+        )
+        .map(key => {
+          const { address, netmask } = networkInterfaces[key]
+            .reduce((acc, item) => item.family == 'IPv4' ? item : acc, {});
+          const addressNumber = ipUtils.ip2number(address) >>> 0;
+          const netmaskNumber = ipUtils.ip2number(netmask) >>> 0;
+          const baseAddress = ipUtils.number2ip(addressNumber & netmaskNumber);
+          let bitMask;
+
+          for (let i = 32; i >= 0; i--) {
+            if (netmaskNumber == (0xffffffff << (32 - i)) >>> 0) {
+              bitMask = i;
+            }
+          }
+
+          return {
+            leftBound: bitMask <= 30
+              ? ipUtils.number2ip((addressNumber & netmaskNumber) + 1)
+              : baseAddress,
+            rightBound: bitMask <= 30
+              ? ipUtils.number2ip((addressNumber & netmaskNumber) + Math.pow(2, 32 - bitMask) - 2)
+              : ipUtils.number2ip((addressNumber & netmaskNumber) + Math.pow(2, 32 - bitMask) - 1)
+          };
+        });
+    }
   }
 
   ping() {
     const ips = this.ips;
     const loop = () => {
       let ip;
-      if(ip = ips.pop()) {
+      if (ip = ips.pop()) {
         ping.promise.probe(ip).then(target => {
-          if(target.alive) {
+          if (target.alive) {
             this.emit('host:alive', target.host);
           } else {
             this.emit('host:dead', target.host);
@@ -57,7 +75,7 @@ class SubnetsPinger extends EventEmitter {
         setTimeout(() => this.emit('ping:end'), 300);
       }
     };
-    for(let i = 0; i < os.cpus().length * 5; i++) {
+    for (let i = 0; i < os.cpus().length * 5; i++) {
       process.nextTick(() => {
         loop();
       });
@@ -70,7 +88,9 @@ class SubnetsPinger extends EventEmitter {
       const startRange = ipUtils.ip2number(this.ranges[i].leftBound);
       const endRange = ipUtils.ip2number(this.ranges[i].rightBound);
       for (let j = startRange; j <= endRange; j++) {
-        ips.push(ipUtils.number2ip(j));
+        if(!ips.includes(ipUtils.number2ip(j))) {
+          ips.push(ipUtils.number2ip(j));
+        }
       }
     }
 

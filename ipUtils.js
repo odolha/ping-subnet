@@ -5,6 +5,10 @@ const number2ip = number => [
   number & 0xff
 ].join('.');
 
+const isIP = (ip) => {
+  const ipArray = (ip + '').split('.');
+  return !(ipArray.length === 0 || ipArray.length > 4);
+}
 
 const ip2number = ip => {
   const ipArray = (ip + '').split('.');
@@ -24,4 +28,4 @@ const ip2number = ip => {
   }
 }
 
-module.exports = {number2ip, ip2number};
+module.exports = {number2ip, ip2number, isIP};
