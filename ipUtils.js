@@ -18,7 +18,7 @@ const ip2number = ip => {
   } else {
     return ipArray
       .map((segment, i) => {
-        if (isNaN(parseInt(segment, 10)) || segment < 0 || segment > 255) {
+        if (isNaN(+segment) || segment < 0 || segment > 255) {
           throw new Error('One or more segments of IP-address is invalid');
           return;
         }
