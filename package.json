@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "ping": "git+https://github.com/ubcent/node-ping.git"
+    "ping": "git+https://github.com/odolha/node-ping.git"
   },
   "devDependencies": {},
   "scripts": {
